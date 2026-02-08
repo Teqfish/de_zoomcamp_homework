@@ -209,3 +209,4 @@ __marimo__/
 # Custom stuff
 node_modules/
 *.duckdb
+.vscode/settings.json
