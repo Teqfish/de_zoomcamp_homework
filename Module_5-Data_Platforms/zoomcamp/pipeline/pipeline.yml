@@ -1,0 +1,19 @@
+# Key docs:
+# - Pipeline files: https://getbruin.com/docs/bruin/getting-started/pipeline
+# - Variables (JSON Schema): https://getbruin.com/docs/bruin/getting-started/pipeline-variables
+# - Run command: https://getbruin.com/docs/bruin/commands/run
+# Docs (connections): https://getbruin.com/docs/bruin/commands/connections
+
+name: ny_taxi_data
+schedule: "daily"
+start_date: "2022-01-01"
+
+default_connections:
+  duckdb: duckdb-default
+
+variables:
+  taxi_types:
+    type: array
+    items:
+      type: string
+    default: ["yellow"]
