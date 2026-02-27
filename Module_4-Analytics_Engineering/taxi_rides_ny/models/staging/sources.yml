@@ -1,6 +1,8 @@
+version: 2
+
 sources:
-  - name: prod
-    description: Raw taxi trip data from NYC TLC (loaded into DuckDB)
+  - name: raw
+    description: Raw taxi + FHV trip data from NYC TLC (loaded into DuckDB)
     schema: prod
 
     freshness:
@@ -89,3 +91,18 @@ sources:
             description: Improvement surcharge
           - name: total_amount
             description: Total amount charged
+
+      - name: fhv_tripdata
+        description: Raw FHV (For-Hire Vehicle) trip records (2019-01 to 2021-07) loaded into DuckDB
+        loaded_at_field: pickup_datetime
+        columns:
+          - name: dispatching_base_num
+            description: Dispatching base number (filtered to NOT NULL in stg_fhv_tripdata)
+          - name: pickup_datetime
+            description: Pickup timestamp (or best available pickup time column)
+          - name: dropoff_datetime
+            description: Dropoff timestamp (if present)
+          - name: pulocationid
+            description: Pickup TLC Taxi Zone ID (if present)
+          - name: dolocationid
+            description: Dropoff TLC Taxi Zone ID (if present)

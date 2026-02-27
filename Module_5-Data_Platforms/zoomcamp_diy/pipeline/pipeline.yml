@@ -16,4 +16,4 @@ variables:
     type: array
     items:
       type: string
-    default: ["yellow"]
+    default: ["yellow", "green"]
