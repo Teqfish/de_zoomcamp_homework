@@ -218,6 +218,10 @@ logs/
 
 # Data directory
 data/
+yellow_tripdata/
+*.parquet
+*.csv
+*.tar.gz
 
 .bruin.yml
 logs/runs
