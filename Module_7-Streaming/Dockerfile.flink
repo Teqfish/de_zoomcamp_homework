@@ -1,0 +1,51 @@
+FROM flink:2.2.0-scala_2.12-java17
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/
+
+# Need root for apt-get
+USER root
+
+# Install a full JDK so pemja can find JAVA_HOME/include
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        default-jdk-headless \
+        build-essential \
+        wget && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Prepare writable project dir for the flink user
+RUN mkdir -p /opt/pyflink && chown -R flink:flink /opt/pyflink
+
+WORKDIR /opt/pyflink
+COPY --chown=flink:flink pyproject.flink.toml pyproject.toml
+
+# Run Python env setup as the flink user
+USER flink
+
+RUN uv python install 3.12 && \
+    echo "$JAVA_HOME" && \
+    ls "$JAVA_HOME" && \
+    ls "$JAVA_HOME/include" && \
+    uv sync
+
+ENV PATH="/opt/pyflink/.venv/bin:${PATH}"
+
+# Back to root to place jars/config into Flink dirs
+USER root
+
+WORKDIR /opt/flink/lib
+RUN wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-json/2.2.0/flink-json-2.2.0.jar && \
+    wget https://repo1.maven.org/maven2/org/apache/flink/flink-sql-connector-kafka/4.0.1-2.0/flink-sql-connector-kafka-4.0.1-2.0.jar && \
+    wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-jdbc-core/4.0.0-2.0/flink-connector-jdbc-core-4.0.0-2.0.jar && \
+    wget https://repo.maven.apache.org/maven2/org/apache/flink/flink-connector-jdbc-postgres/4.0.0-2.0/flink-connector-jdbc-postgres-4.0.0-2.0.jar && \
+    wget https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.10/postgresql-42.7.10.jar
+
+COPY flink-config.yaml /opt/flink/conf/config.yaml
+
+WORKDIR /opt/flink
+
+# Final runtime user
+USER flink
