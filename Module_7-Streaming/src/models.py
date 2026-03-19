@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 from dataclasses import dataclass
 
 
@@ -11,7 +12,7 @@ class Ride:
     lpep_dropoff_datetime: str
     total_amount: float
     tip_amount: float
-    passenger_count: float | None
+    passenger_count: int | None
 
 def ride_from_row(row):
     return Ride(
@@ -22,7 +23,9 @@ def ride_from_row(row):
         lpep_dropoff_datetime=str(row['lpep_dropoff_datetime']),
         total_amount=float(row['total_amount']),
         tip_amount=float(row['tip_amount']),
-        passenger_count=float(row['passenger_count'])
+        passenger_count=(
+            None if pd.isna(row['passenger_count']) else int(row['passenger_count'])
+            ),
     )
 
 def ride_deserializer(data):
